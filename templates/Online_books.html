@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Books - PDF Search</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Online Books - PDF Search</h1>
+        <label for="folderPath">Papka yo'lini kiriting:</label>
+        <input type="text" id="folderPath" placeholder="Masalan: /yo'l/na/Online_books" />
+        <button onclick="searchPDFs()">Qidirish</button>
+
+        <h3>Topilgan PDF fayllari:</h3>
+        <ul id="pdfList"></ul>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+input, button {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    margin-bottom: 5px;
+}
+function searchPDFs() {
+    const folderPath = document.getElementById('folderPath').value;
+    const pdfListElement = document.getElementById('pdfList');
+
+    fetch(`/api/search?folderPath=${encodeURIComponent(folderPath)}`)
+        .then(response => response.json())
+        .then(data => {
+            pdfListElement.innerHTML = ''; // Ro'yxatni tozalash
+
+            if (data.pdfFiles.length === 0) {
+                pdfListElement.innerHTML = '<p>PDF fayllari topilmadi.</p>';
+            } else {
+                data.pdfFiles.forEach(pdfFile => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = pdfFile;
+                    pdfListElement.appendChild(listItem);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Xato:', error);
+            pdfListElement.innerHTML = '<p>Xatolik yuz berdi.</p>';
+        });
+}
+{% endblock %}
